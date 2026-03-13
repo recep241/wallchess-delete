@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WallChess – Hesap Silme / Account Deletion</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0e0e12;
+    --surface: #17171f;
+    --border: #2a2a38;
+    --yellow: #ffd700;
+    --yellow-dim: #c9a800;
+    --red: #ff4444;
+    --text: #f0f0f0;
+    --muted: #888;
+    --radius: 12px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px 80px;
+  }
+
+  /* Arka plan dekoratif */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(ellipse, rgba(255,215,0,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── Header ── */
+  header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .chess-icon {
+    font-size: 52px;
+    display: block;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 20px rgba(255,215,0,0.4));
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 5vw, 44px);
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+  h1 span { color: var(--yellow); }
+
+  .subtitle {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    width: 100%;
+    max-width: 560px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--yellow);
+    flex-shrink: 0;
+  }
+
+  p { line-height: 1.7; color: #ccc; font-size: 15px; }
+  p + p { margin-top: 12px; }
+
+  /* ── Steps ── */
+  .steps { list-style: none; margin-top: 8px; }
+  .steps li {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    color: #ccc;
+    line-height: 1.5;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(255,215,0,0.12);
+    border: 1px solid var(--yellow-dim);
+    color: var(--yellow);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Data table ── */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+  .data-table th {
+    text-align: left;
+    padding: 10px 12px;
+    color: var(--muted);
+    font-weight: 400;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .data-table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: #ccc;
+    vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 400;
+  }
+  .badge-del  { background: rgba(255,68,68,0.15);  color: #ff7070; }
+  .badge-imm  { background: rgba(255,215,0,0.12);  color: var(--yellow); }
+
+  /* ── Email button ── */
+  .email-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    background: var(--yellow);
+    color: #0e0e12;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    margin-top: 24px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .email-btn:hover  { background: #ffe44d; transform: translateY(-1px); }
+  .email-btn:active { transform: translateY(0); }
+
+  /* ── Warning box ── */
+  .warning {
+    background: rgba(255,68,68,0.08);
+    border: 1px solid rgba(255,68,68,0.25);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #ff9090;
+    margin-top: 20px;
+    line-height: 1.6;
+  }
+  .warning strong { color: var(--red); }
+
+  /* ── Footer ── */
+  footer {
+    margin-top: 48px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="chess-icon">♟</span>
+  <h1>Wall<span>Chess</span></h1>
+  <p class="subtitle">Hesap Silme &amp; Veri Talebi &nbsp;/&nbsp; Account Deletion &amp; Data Request</p>
+</header>
+
+<!-- ADIMLAR -->
+<div class="card">
+  <div class="card-title"><span class="dot"></span> Hesabınızı Nasıl Silersiniz?</div>
+  <p>Hesabınızı ve tüm verilerinizi silmek için aşağıdaki adımları izleyin veya doğrudan bize e-posta gönderin.</p>
+  <ul class="steps">
+    <li>
+      <div class="step-num">1</div>
+      <div>Aşağıdaki <strong>"Silme Talebi Gönder"</strong> butonuna tıklayın. E-posta uygulamanız açılacaktır.</div>
+    </li>
+    <li>
+      <div class="step-num">2</div>
+      <div>E-postaya Google hesabınızla giriş yaptığınız <strong>e-posta adresinizi</strong> yazın.</div>
+    </li>
+    <li>
+      <div class="step-num">3</div>
+      <div>Talebiniz <strong>7 iş günü</strong> içinde işleme alınır ve tüm verileriniz silinir.</div>
+    </li>
+  </ul>
+  <a class="email-btn" href="mailto:wallchess.support@gmail.com?subject=Hesap%20Silme%20Talebi%20%2F%20Account%20Deletion%20Request&body=Merhaba%2C%0A%0AHesabımın%20ve%20tüm%20verilerimin%20silinmesini%20talep%20ediyorum.%0A%0AGoogle%20e-posta%20adresim%3A%20%5Buraya%20yazın%5D%0A%0AThanks.">
+    ✉️ &nbsp;Silme Talebi Gönder / Send Deletion Request
+  </a>
+  <div class="warning">
+    <strong>⚠️ Dikkat:</strong> Hesap silme işlemi geri alınamaz. Altın bakiyeniz, galibiyet istatistikleriniz ve tüm oyun verileriniz kalıcı olarak silinecektir.
+  </div>
+</div>
+
+<!-- VERİ TABLOSU -->
+<div class="card">
+  <div class="card-title"><span class="dot"></span> Toplanan Veriler &amp; Saklama Süresi</div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Veri Türü</th>
+        <th>Silinir mi?</th>
+        <th>Saklama</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Google Görünen Ad</td>
+        <td><span class="badge badge-del">Silinir</span></td>
+        <td>Talep anında</td>
+      </tr>
+      <tr>
+        <td>E-posta Adresi</td>
+        <td><span class="badge badge-del">Silinir</span></td>
+        <td>Talep anında</td>
+      </tr>
+      <tr>
+        <td>Altın Bakiyesi</td>
+        <td><span class="badge badge-del">Silinir</span></td>
+        <td>Talep anında</td>
+      </tr>
+      <tr>
+        <td>Oyun İstatistikleri<br><small style="color:var(--muted)">Galibiyet, mağlubiyet, toplam oyun</small></td>
+        <td><span class="badge badge-del">Silinir</span></td>
+        <td>Talep anında</td>
+      </tr>
+      <tr>
+        <td>Firebase UID</td>
+        <td><span class="badge badge-imm">Anonim kalır</span></td>
+        <td>Firebase altyapısı</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- HOW TO DELETE WITHOUT ACCOUNT DELETION -->
+<div class="card">
+  <div class="card-title"><span class="dot"></span> How to Delete Your Account (English)</div>
+  <p>To request deletion of your WallChess account and all associated data:</p>
+  <ol class="steps">
+    <li>
+      <div class="step-num">1</div>
+      <div>Click <strong>"Send Deletion Request"</strong> above. Your email app will open with a pre-filled template.</div>
+    </li>
+    <li>
+      <div class="step-num">2</div>
+      <div>Include the <strong>email address</strong> associated with your Google account used in WallChess.</div>
+    </li>
+    <li>
+      <div class="step-num">3</div>
+      <div>Your request will be processed within <strong>7 business days</strong> and all data will be permanently deleted.</div>
+    </li>
+  </ol>
+</div>
+
+<footer>
+  © 2025 WallChess &nbsp;·&nbsp; Tüm hakları saklıdır &nbsp;·&nbsp; All rights reserved
+</footer>
+
+</body>
+</html>
